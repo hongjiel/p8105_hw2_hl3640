@@ -1,0 +1,5 @@
+---
+title: "Homework 2"
+author: "Hongjie Liu"
+output: github_document
+---
