@@ -5,10 +5,11 @@ output: github_document
 ---
 
 
-Load package `tidyverse` for homework 2.
+Load necessary packages for homework 2.
 
 ```{r loadpackages, message = FALSE}
 library(tidyverse)
+library(readxl)
 ```
 
 
@@ -93,3 +94,63 @@ stnum_a_ada = transit_df %>%
 ```
 
 `r stnum_a` stations serve the A train, of which `r stnum_a_ada` are ADA compliant.
+
+
+## Problem 2
+
+Read and clean the Mr. Trash Wheel sheet:
+
+* specify the sheet in the Excel file and to omit non-data entries (rows with notes / figures; columns containing notes) using arguments in read_excel
+* use reasonable variable names
+* omit rows that do not include dumpster-specific data
+* round the number of sports balls to the nearest integer and converts the result to an integer variable
+
+We assign the dataset to `mrtw_df`.
+
+```{r p2_readtidy_mrtw}
+mrtw_df = 
+  read_excel(
+  path = "./data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
+  sheet = "Mr. Trash Wheel",
+  range = "A2:N533"
+  ) %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(sports_balls = round(sports_balls)) %>% 
+  mutate(sports_balls = as.integer(sports_balls))
+
+mrtw_df
+```
+
+We use a similar process to import, clean, and organize the data for Professor Trash Wheel and assign it to `proftw_df`. Next, we combine this with the Mr. Trash Wheel dataset `mrtw_df` to produce a single tidy dataset `tw_df`.
+
+```{r p2_readtidy_proftw}
+proftw_df = 
+  read_excel(
+  path = "./data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
+  sheet = "Professor Trash Wheel",
+  range = "A2:N115"
+  ) %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(sports_balls = round(sports_balls)) %>% 
+  mutate(sports_balls = as.integer(sports_balls)) %>% 
+  mutate(trash_wheel_type = "Professor Trash Wheel")
+
+mrtw_df = mutate(mrtw_df, trash_wheel_type = "Mr. Trash Wheel")
+
+tw_df = bind_rows(mrtw_df, proftw_df)
+
+tw_df
+```
+
+Here is a description of the resulting dataset `tw_df`:
+
+* The variables of the dataset are ``r names(tw_df)``.
+* Here are some values of several key variables of the dataset: some values of the variable `weight_tons` are ``r unique(tw_df$weight_tons)[1:3]``. Some values of the variable `plastic_bottles` are ``r unique(tw_df$plastic_bottles)[1:3]``.
+* It has `r nrow(tw_df)` rows (number of observations) and `r ncol(tw_df)` columns.
+
+For available data, we have:
+
+* Professor Trash Wheel collected `r sum(pull(proftw_df, weight_tons))` tons of trash.
+* Mr. Trash Wheel collected `r sum(pull(filter(mrtw_df, year == 2020), sports_balls))` sports balls in 2020.
