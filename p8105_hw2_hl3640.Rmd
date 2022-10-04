@@ -17,8 +17,9 @@ library(readxl)
 
 Read and clean the data; retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (`YES` vs `NO`) to a logical variable.
 
-```{r p1_tidydata}
+```{r p1_tidydata, message = FALSE}
 transit_df_original = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+
 transit_df = transit_df_original %>% 
   janitor::clean_names() %>% 
   select(line:entry, vending, ada) %>% 
@@ -75,7 +76,8 @@ transit_df = transit_df %>%
   pivot_longer(
     route1:route11,
     names_to = "route_number",
-    values_to = "route_name") %>% 
+    values_to = "route_name"
+  ) %>% 
   mutate(route_number = str_replace(route_number, "route", ""))
 ```
 
@@ -110,16 +112,16 @@ We assign the dataset to `mrtw_df`.
 ```{r p2_readtidy_mrtw}
 mrtw_df = 
   read_excel(
-  path = "./data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
-  sheet = "Mr. Trash Wheel",
-  range = "A2:N533"
+    path = "./data/Trash Wheel Collection Data.xlsx",
+    sheet = "Mr. Trash Wheel",
+    range = "A2:N549"
   ) %>% 
   janitor::clean_names() %>% 
   drop_na(dumpster) %>% 
   mutate(
     sports_balls = round(sports_balls),
     sports_balls = as.integer(sports_balls)
-    )
+  )
 
 mrtw_df
 ```
@@ -129,17 +131,16 @@ We use a similar process to import, clean, and organize the data for Professor T
 ```{r p2_readtidy_proftw}
 proftw_df = 
   read_excel(
-  path = "./data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
-  sheet = "Professor Trash Wheel",
-  range = "A2:N115"
+    path = "./data/Trash Wheel Collection Data.xlsx",
+    sheet = "Professor Trash Wheel",
+    range = "A2:M96"
   ) %>% 
   janitor::clean_names() %>% 
   drop_na(dumpster) %>% 
   mutate(
-    sports_balls = round(sports_balls),
-    sports_balls = as.integer(sports_balls),
-    trash_wheel_type = "Professor Trash Wheel"
-    )
+    trash_wheel_type = "Professor Trash Wheel",
+    year = as.character(year)
+  )
 
 mrtw_df = mutate(mrtw_df, trash_wheel_type = "Mr. Trash Wheel")
 
@@ -171,8 +172,8 @@ pols =
   separate(mon, into = c("year", "month", "day"), sep = "-", convert = TRUE) %>% 
   mutate(
     month = month.name[month],
-    president = ifelse(prez_gop == 1, "gop", "dem")
-    ) %>% 
+    president = ifelse(prez_dem == 1, "dem", "gop")
+  ) %>% 
   select(-prez_dem, -prez_gop, -day)
 
 pols
@@ -189,7 +190,7 @@ snp =
     month = month.name[month],
     year = ifelse(year > 15, year + 1900, year + 2000),
     year = as.integer(year)
-    ) %>% 
+  ) %>% 
   select(-day) %>% 
   arrange(year, match(month, month.name)) %>% 
   select(year, month, close)
@@ -207,14 +208,14 @@ unemployment =
     jan:dec,
     names_to = "month",
     values_to = "unemployment_rate"
-    ) %>% 
+  ) %>% 
   drop_na(unemployment_rate) %>% 
   mutate(
     month = str_to_title(month),
     month = factor(month, levels = month.abb, labels = month.name),
     month = as.character(month),
     year = as.integer(year)
-    )
+  )
 
 unemployment
 ```
@@ -223,8 +224,8 @@ Join the datasets by merging `snp` into `pols`, and merging `unemployment` into 
 
 ```{r p3_merge, message = FALSE}
 result = pols %>% 
-  left_join(y = snp) %>% 
-  left_join(y = unemployment)
+  left_join(x = ., y = snp) %>% 
+  left_join(x = ., y = unemployment)
 
 result
 ```
