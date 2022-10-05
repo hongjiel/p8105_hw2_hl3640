@@ -126,7 +126,7 @@ mrtw_df =
 mrtw_df
 ```
 
-We use a similar process to import, clean, and organize the data for Professor Trash Wheel and assign it to `proftw_df`. Next, we combine this with the Mr. Trash Wheel dataset `mrtw_df` to produce a single tidy dataset `tw_df`.
+We use a similar process to import, clean, and organize the data for Professor Trash Wheel and assign it to `proftw_df`. Next, to keep track of which Trash Wheel is which, we add an additional variable `trash_wheel_type` to both datasets. Then, we combine the two datasets to produce a single tidy dataset `tw_df`.
 
 ```{r p2_readtidy_proftw}
 proftw_df = 
@@ -151,9 +151,9 @@ tw_df
 
 Here is a description of the resulting dataset `tw_df`:
 
-* The variables of the dataset are ``r names(tw_df)``.
-* Here are some values of several key variables of the dataset: some values of the variable `weight_tons` are ``r unique(tw_df$weight_tons)[1:3]``. Some values of the variable `plastic_bottles` are ``r unique(tw_df$plastic_bottles)[1:3]``.
 * The dataset has `r nrow(tw_df)` rows (number of observations) and `r ncol(tw_df)` columns.
+* The variables of the dataset are ``r names(tw_df)``. All the variables appear in both the two datasets before combination except the variable `sports_balls`, which does not appear in `proftw_df`.
+* Here are some values of several key variables of the dataset: some values of the variable `weight_tons` are ``r unique(tw_df$weight_tons)[1:3]``; some values of the variable `plastic_bottles` are ``r unique(tw_df$plastic_bottles)[1:3]``.
 
 For available data, we have:
 
@@ -178,6 +178,8 @@ pols =
 
 pols
 ```
+
+Notice that five of the values of the variable `prez_gop` are `2`, from August 1974 to December 1974. Considering the fact that Gerald R. Ford took the oath of office on August 9, 1974 as the 38th President of the United States and he was a Republican, and the corresponding 5 values of the variable `prez_dem` are `0`, we assign values to the `president` variable based on the variable `prez_dem`.
 
 Second, clean the data in snp.csv using a similar process to the above. For consistency across datasets, arrange according to `year` and `month`, and organize so that `year` and `month` are the leading columns. We assign the dataset to `snp`.
 
@@ -230,9 +232,10 @@ result = pols %>%
 result
 ```
 
-Here is a description of the three datasets `snp`, `pols`, and `employment`:
+Here is a description of the three datasets `snp`, `pols`, and `unemployment`:
 
-* All the three datasets have the variables `month` and `year`, which indicate the year and the month of observations respectively.
+* The dataset `snp` has `r nrow(snp)` rows (number of observations) and `r ncol(snp)` columns; the dataset `pols` has `r nrow(pols)` rows and `r ncol(pols)` columns; the dataset `unemployment` has `r nrow(unemployment)` rows and `r ncol(unemployment)` columns.
+* All three datasets have the variables `month` and `year`, which indicate the year and the month of observations respectively.
 * For the dataset `snp`, the variable `president` indicates whether the president was republican or democratic; the variables `gov_gop` and `gov_dem` indicate the number of republican and democratic governors respectively; the variables `sen_gop` and `sen_dem` indicate the number of republican and democratic senators respectively; the variables `rep_gop` and `rep_dem` indicate the number of republican and democratic representatives respectively.
 * For the dataset `pols`, the variable `close` indicates the closing values of the S&P stock index.
 * For the dataset `unemployment`, the variable `unemployment_rate` indicates the percentage of unemployment.
